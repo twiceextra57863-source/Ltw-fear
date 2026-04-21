@@ -39,9 +39,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # Build the mod
+      # Build the mod (skip tests for speed)
       - name: Build with Gradle
-        run: ./gradlew build -x test  # Skip tests for faster builds
+        run: ./gradlew build -x test
 
       # Build C++ (Vulkan Renderer)
       - name: Build Vulkan Renderer
