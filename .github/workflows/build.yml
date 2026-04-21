@@ -41,7 +41,7 @@ jobs:
 
       # Build the mod (skip tests for speed)
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test --no-daemon --stacktrace
 
       # Build C++ (Vulkan Renderer)
       - name: Build Vulkan Renderer
