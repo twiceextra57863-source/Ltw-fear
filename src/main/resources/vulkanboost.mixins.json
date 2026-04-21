@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.mephistopheles.vulkanboost.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinGameRenderer",
+    "MixinMinecraftClient"
+  ],
+  "client": [
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
