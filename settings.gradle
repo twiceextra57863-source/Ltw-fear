@@ -1,1 +1,9 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url 'https://maven.fabricmc.net/' }  // FabricMC Maven repo
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'Ltw-fear'
