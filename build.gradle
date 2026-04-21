@@ -1,34 +1,25 @@
 plugins {
-    id 'fabric-loom' version '1.6.10' // Latest release (as of April 2026)
+    id 'fabric-loom' version '1.6.10'  // Fabric Loom plugin
     id 'maven-publish'
 }
 
 repositories {
     mavenCentral()
-    maven { url 'https://maven.fabricmc.net/' }
+    maven { url 'https://maven.fabricmc.net/' }  // FabricMC Maven repo
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21) // Java 21
+        languageVersion = JavaLanguageVersion.of(21)  // Java 21
     }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:1.21.4"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:0.15.3" // Release
-    modImplementation "net.fabricmc.fabric-api:fabric-api:0.91.0+1.21.4" // Release
-    include modImplementation('org.lwjgl:lwjgl:3.3.3') // LWJGL (OpenGL/Vulkan)
+    modImplementation "net.fabricmc:fabric-loader:0.15.3"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.91.0+1.21.4"
+    include modImplementation('org.lwjgl:lwjgl:3.3.3')
     include modImplementation('org.lwjgl:lwjgl-vulkan:3.3.3')
     include modImplementation('org.lwjgl:lwjgl-opengl:3.3.3')
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    filesMatching(['fabric.mod.json']) {
-        filter { it.contains('${version}') ? project.version : it }
-        filter { it.contains('${minecraft_version}') ? project.minecraft_version : it }
-    }
 }
