@@ -1,16 +1,16 @@
 plugins {
-    id 'fabric-loom' version '1.6.10'  // Fabric Loom plugin
+    id 'fabric-loom' version '1.6.10'
     id 'maven-publish'
 }
 
 repositories {
     mavenCentral()
-    maven { url 'https://maven.fabricmc.net/' }  // FabricMC Maven repo
+    maven { url 'https://maven.fabricmc.net/' }
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)  // Java 21
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
