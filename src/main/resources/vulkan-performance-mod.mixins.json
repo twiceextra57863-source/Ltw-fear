@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.performance.vulkanmod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "FireOverlayMixin",
+    "GameRendererMixin",
+    "EntityRendererMixin",
+    "ParticleOptimizationMixin",
+    "BlockPlacementMixin",
+    "CritLagMixin",
+    "CameraMixin",
+    "MinecraftClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
