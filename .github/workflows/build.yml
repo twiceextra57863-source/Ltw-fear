@@ -1,4 +1,4 @@
-name: Build Vulkan Performance Mod
+name: Build Vulkan Performance Mod Ultimate
 
 on:
   push:
@@ -8,26 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-natives-linux-x64:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      - name: Compile Linux x64 Native
-        run: |
-          mkdir -p src/main/resources/nativelib/x64
-          g++ -O3 -shared -fPIC -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux src/main/cpp/vulkan_performance.cpp -o src/main/resources/nativelib/x64/libvulkan_performance.so
-      - name: Upload x64 Native
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-linux-x64
-          path: src/main/resources/nativelib/x64/libvulkan_performance.so
-
-  build-natives-linux-arm64:
+  build-natives-linux:
+    name: Build Linux Natives (x64 & ARM64)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,17 +20,23 @@ jobs:
           distribution: 'temurin'
       - name: Install ARM Cross-Compiler
         run: sudo apt-get update && sudo apt-get install -y g++-aarch64-linux-gnu
-      - name: Compile Linux ARM64 Native
+      - name: Compile Natives
         run: |
+          mkdir -p src/main/resources/nativelib/x64
           mkdir -p src/main/resources/nativelib/arm64
+          # Compile x64
+          g++ -O3 -shared -fPIC -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux src/main/cpp/vulkan_performance.cpp -o src/main/resources/nativelib/x64/libvulkan_performance.so
+          # Compile ARM64
           aarch64-linux-gnu-g++ -O3 -shared -fPIC -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux src/main/cpp/vulkan_performance.cpp -o src/main/resources/nativelib/arm64/libvulkan_performance.so
-      - name: Upload ARM64 Native
+      - name: Upload Linux Natives
         uses: actions/upload-artifact@v4
         with:
-          name: native-linux-arm64
-          path: src/main/resources/nativelib/arm64/libvulkan_performance.so
+          name: natives-linux
+          path: src/main/resources/nativelib/
+          retention-days: 1
 
   build-natives-windows:
+    name: Build Windows Natives (x64)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,19 +47,21 @@ jobs:
           distribution: 'temurin'
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
-      - name: Compile Windows x64 Native
+      - name: Compile Windows Native
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path src/main/resources/nativelib/x64
-          cl.exe /O2 /LD /I"$env:JAVA_HOME/include" /I"$env:JAVA_HOME/include/win32" src/main/cpp/vulkan_performance.cpp /link /out:src/main/resources/nativelib/x64/vulkan_performance.dll
+          cl.exe /O2 /LD /I"$env:JAVA_HOME/include" /I"$env:JAVA_HOME/include/win32" src\main\cpp\vulkan_performance.cpp /link /out:src\main\resources\nativelib\x64\vulkan_performance.dll
       - name: Upload Windows Native
         uses: actions/upload-artifact@v4
         with:
-          name: native-windows-x64
+          name: natives-windows
           path: src/main/resources/nativelib/x64/vulkan_performance.dll
+          retention-days: 1
 
   build-mod:
-    needs: [build-natives-linux-x64, build-natives-linux-arm64, build-natives-windows]
+    name: Build Final Mod JAR & ZIP
+    needs: [build-natives-linux, build-natives-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,21 +70,16 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Download x64 Linux Native
+      - name: Download Linux Natives
         uses: actions/download-artifact@v4
         with:
-          name: native-linux-x64
-          path: src/main/resources/nativelib/x64
-      - name: Download ARM64 Linux Native
+          name: natives-linux
+          path: src/main/resources/nativelib/
+      - name: Download Windows Native
         uses: actions/download-artifact@v4
         with:
-          name: native-linux-arm64
-          path: src/main/resources/nativelib/arm64
-      - name: Download x64 Windows Native
-        uses: actions/download-artifact@v4
-        with:
-          name: native-windows-x64
-          path: src/main/resources/nativelib/x64
+          name: natives-windows
+          path: src/main/resources/nativelib/x64/
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
@@ -102,14 +87,28 @@ jobs:
       - name: Create Ultimate Pack ZIP
         run: |
           mkdir -p release_zip
-          cp build/libs/*-remapped.jar release_zip/vulkan-performance-mod-ultimate.jar
-          echo "Installation Instructions:
-          1. For PC: Put vulkan-performance-mod-ultimate.jar in your Minecraft mods folder.
-          2. For Mobile (PojavLauncher): Put the same jar in your mobile mods folder.
-          3. Enjoy 200+ FPS stability!" > release_zip/README_INSTALLATION.txt
+          # Correctly identify the final JAR from the libs folder (Fabric Loom 1.7 typically doesn't use -remapped anymore)
+          cp build/libs/vulkan-performance-mod-*.jar release_zip/vulkan-performance-mod-ultimate.jar
+          # Remove the sources jar from the zip if it was copied by the wildcard
+          rm -f release_zip/*-sources.jar
+          echo "Vulkan Performance Mod Ultimate v1.0
+          --------------------------------------
+          Works on: PC (Windows/Linux) and Mobile (PojavLauncher/Android)
+
+          Installation:
+          1. Copy 'vulkan-performance-mod-ultimate.jar' to your 'mods' folder.
+          2. Launch Minecraft 1.21.4 with Fabric.
+          3. Performance boost will activate automatically.
+
+          Features:
+          - Native Process Priority Boost (C++)
+          - Entity Culling (64 blocks) for SMP smoothness
+          - High-Stress Particle Optimization
+          - No Interaction Cooldown for Fast Placement
+          - Anti-Lag Combat System (Crit Fix)" > release_zip/README.txt
           zip -r Vulkan-Performance-Ultimate-Pack.zip release_zip
-      - name: Upload Ultimate ZIP
+      - name: Upload Ultimate ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vulkan-Performance-Ultimate-Pack
+          name: Vulkan-Performance-Ultimate-Build
           path: Vulkan-Performance-Ultimate-Pack.zip
