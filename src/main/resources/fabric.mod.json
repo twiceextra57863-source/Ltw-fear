@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "vulkanplus",
+  "version": "${version}",
+  "name": "VulkanPlus",
+  "description": "Extreme FPS and Smoothness mod using Vulkan-like optimizations.",
+  "authors": ["Astra AI"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.astra.vulkanplus.VulkanPlus"]
+  },
+  "mixins": [
+    "vulkanplus.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "minecraft": "~1.21.4",
+    "java": ">=21"
+  }
+}
