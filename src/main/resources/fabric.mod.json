@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "vulkan-performance-mod",
+	"version": "${version}",
+	"name": "Vulkan Performance Mod",
+	"description": "A high-performance mod providing Vulkan-like FPS boost and smoothness for Minecraft 1.21.4.",
+	"authors": [
+		"Jules"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/fabricmc/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/vulkan-performance-mod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.performance.vulkanmod.VulkanPerformanceMod"
+		],
+		"client": [
+			"com.performance.vulkanmod.client.VulkanPerformanceModClient"
+		]
+	},
+	"mixins": [
+		"vulkan-performance-mod.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
