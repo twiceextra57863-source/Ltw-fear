@@ -2,9 +2,10 @@ name: Build Vulkan Performance Mod
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "**" ]
+  workflow_dispatch:
 
 jobs:
   build-natives-linux-x64:
@@ -98,8 +99,17 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
-      - name: Upload Mod Jar
+      - name: Create Ultimate Pack ZIP
+        run: |
+          mkdir -p release_zip
+          cp build/libs/*-remapped.jar release_zip/vulkan-performance-mod-ultimate.jar
+          echo "Installation Instructions:
+          1. For PC: Put vulkan-performance-mod-ultimate.jar in your Minecraft mods folder.
+          2. For Mobile (PojavLauncher): Put the same jar in your mobile mods folder.
+          3. Enjoy 200+ FPS stability!" > release_zip/README_INSTALLATION.txt
+          zip -r Vulkan-Performance-Ultimate-Pack.zip release_zip
+      - name: Upload Ultimate ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: Vulkan-Performance-Mod-Multiarch
-          path: build/libs/*-remapped.jar
+          name: Vulkan-Performance-Ultimate-Pack
+          path: Vulkan-Performance-Ultimate-Pack.zip
