@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
       - name: Compile Linux x64 Native
         run: |
           mkdir -p src/main/resources/nativelib/x64
@@ -25,6 +30,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
       - name: Install ARM Cross-Compiler
         run: sudo apt-get update && sudo apt-get install -y g++-aarch64-linux-gnu
       - name: Compile Linux ARM64 Native
@@ -41,12 +51,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
       - name: Compile Windows x64 Native
+        shell: pwsh
         run: |
-          mkdir -p src/main/resources/nativelib/x64
-          cl.exe /O2 /LD /I"%JAVA_HOME%\include" /I"%JAVA_HOME%\include\win32" src\main\cpp\vulkan_performance.cpp /link /out:src\main\resources\nativelib\x64\vulkan_performance.dll
+          New-Item -ItemType Directory -Force -Path src/main/resources/nativelib/x64
+          cl.exe /O2 /LD /I"$env:JAVA_HOME/include" /I"$env:JAVA_HOME/include/win32" src/main/cpp/vulkan_performance.cpp /link /out:src/main/resources/nativelib/x64/vulkan_performance.dll
       - name: Upload Windows Native
         uses: actions/upload-artifact@v4
         with:
