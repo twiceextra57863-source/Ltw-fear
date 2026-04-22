@@ -1,0 +1,25 @@
+name: LTW Vulkan Build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Install C++ Compiler
+        run: sudo apt-get install -y build-essential g++-multilib
+      - name: Compile Native Core
+        run: |
+          mkdir -p src/main/resources/natives/linux_x64
+          g++ -shared -fPIC -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux src/main/cpp/vulkan_engine.cpp -o src/main/resources/natives/linux_x64/libltwvulkan_native.so
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LTW-Vulkan-Mod
+          path: build/libs/*.jar
